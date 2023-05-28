@@ -11,7 +11,12 @@ Each Trade row is merged with its corresponding ClosedLot and the currency rates
 
 1. Clone the repository.
 2. Copy your IBKR statement into the root directory of the project.
-3. Run the script using the following command:
+3. Install requirements:
+```bash
+$ pip install -r ./requirements.txt
+```
+
+4. Run the script using the following commands:
 
 ```bash
 $ python src
