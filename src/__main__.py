@@ -41,29 +41,6 @@ def main():
     book = openpyxl.load_workbook('1325_form.xlsx')
     sheet = book.active
 
-    # Calculate the total sales, profit and loss table
-    total_profit_loss = result_df[Cols.SELL_PRICE_USD.value].sum() - result_df[Cols.BUY_PRICE_USD.value].sum()
-    print(f"Total Profit/Loss: {total_profit_loss}") # Not necessary for the 1325 form, but should match IBKR's statement
-
-    total_sales_h1 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month <= 6][Cols.SELL_PRICE_ILS.value]).sum()
-    total_sales_h2 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month > 6][Cols.SELL_PRICE_ILS.value]).sum()
-    real_profit_h1 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month <= 6][Cols.REAL_PROFIT_ILS.value]).sum()
-    real_profit_h2 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month > 6][Cols.REAL_PROFIT_ILS.value]).sum()
-    real_loss_whole_year = pd.to_numeric(result_df[Cols.REAL_LOSS_ILS.value]).sum()
-
-    # Add total sales, profit and loss
-    additional_data = [
-            ['', '', ''],
-            ['', real_profit_h1, 'רווח מחצית ראשונה'],
-            ['', real_profit_h2, 'רווח מחצית שנייה'],
-            [real_loss_whole_year, '', 'סכום הפסד'],
-            ['', total_sales_h1, 'סיכום מכירות מחצית ראשונה'],
-            ['', total_sales_h2, 'סיכום מכירות מחצית שנייה'] ]
-
-    for row_data in additional_data:
-        sheet.append(row_data)
-    # END Add total sales, profit and loss
-
     # START STYLING
     def find_col_letter(sheet, col_name):
         col = next(cell for cell in sheet[1] if cell.value == col_name) # the 1 here refers to the first row
@@ -105,6 +82,30 @@ def main():
         column = [cell for cell in column]
         col_width = max(len(str(cell.value)) for cell in column)
         sheet.column_dimensions[column[0].column_letter].width = col_width
+
+
+    # Calculate the total sales, profit and loss table
+    total_profit_loss = result_df[Cols.SELL_PRICE_USD.value].sum() - result_df[Cols.BUY_PRICE_USD.value].sum()
+    print(f"Total Profit/Loss: {total_profit_loss}") # Not necessary for the 1325 form, but should match IBKR's statement
+
+    total_sales_h1 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month <= 6][Cols.SELL_PRICE_ILS.value]).sum()
+    total_sales_h2 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month > 6][Cols.SELL_PRICE_ILS.value]).sum()
+    real_profit_h1 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month <= 6][Cols.REAL_PROFIT_ILS.value]).sum()
+    real_profit_h2 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month > 6][Cols.REAL_PROFIT_ILS.value]).sum()
+    real_loss_whole_year = pd.to_numeric(result_df[Cols.REAL_LOSS_ILS.value]).sum()
+
+    # Add total sales, profit and loss
+    additional_data = [
+            ['', '', ''],
+            ['', real_profit_h1, 'רווח מחצית ראשונה'],
+            ['', real_profit_h2, 'רווח מחצית שנייה'],
+            [real_loss_whole_year, '', 'סכום הפסד'],
+            ['', total_sales_h1, 'סיכום מכירות מחצית ראשונה'],
+            ['', total_sales_h2, 'סיכום מכירות מחצית שנייה'] ]
+
+    for row_data in additional_data:
+        sheet.append(row_data)
+    # END Add total sales, profit and loss
 
     book.save('1325_form.xlsx')
 
