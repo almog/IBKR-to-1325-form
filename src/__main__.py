@@ -31,8 +31,8 @@ def main():
     # that depend on shared contract such as `result_df` is anything but piling layers of indirection.
     statement_csv_path, rate_csv_path = get_input_paths()
 
-    trades_schema = parse_statement(statement_csv_path)['Trades']
-    result_df = statement_to_1325_form(trades_schema, rate_csv_path)
+    schema_name_to_df = parse_statement(statement_csv_path)
+    result_df = statement_to_1325_form(schema_name_to_df['Trades'], rate_csv_path)
 
     result_df.to_csv('1325_form.csv', index=False, float_format='%.2f', date_format='%d/%m/%Y')
     result_df.to_excel('1325_form.xlsx', sheet_name='1325', index=False, float_format='%.2f')
@@ -88,11 +88,11 @@ def main():
     total_profit_loss = result_df[Cols.SELL_PRICE_USD.value].sum() - result_df[Cols.BUY_PRICE_USD.value].sum()
     print(f"Total Profit/Loss: {total_profit_loss}") # Not necessary for the 1325 form, but should match IBKR's statement
 
-    total_sales_h1 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month <= 6][Cols.SELL_PRICE_ILS.value]).sum()
-    total_sales_h2 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month > 6][Cols.SELL_PRICE_ILS.value]).sum()
-    real_profit_h1 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month <= 6][Cols.REAL_PROFIT_ILS.value]).sum()
-    real_profit_h2 = pd.to_numeric(result_df[result_df[Cols.SELL_DATE.value].dt.month > 6][Cols.REAL_PROFIT_ILS.value]).sum()
-    real_loss_whole_year = pd.to_numeric(result_df[Cols.REAL_LOSS_ILS.value]).sum()
+    total_sales_h1 = result_df[result_df[Cols.SELL_DATE.value].dt.month <= 6][Cols.SELL_PRICE_ILS.value].sum()
+    total_sales_h2 = result_df[result_df[Cols.SELL_DATE.value].dt.month > 6][Cols.SELL_PRICE_ILS.value].sum()
+    real_profit_h1 = result_df[result_df[Cols.SELL_DATE.value].dt.month <= 6][Cols.REAL_PROFIT_ILS.value].sum()
+    real_profit_h2 = result_df[result_df[Cols.SELL_DATE.value].dt.month > 6][Cols.REAL_PROFIT_ILS.value].sum()
+    real_loss_whole_year = result_df[Cols.REAL_LOSS_ILS.value].sum()
 
     # Add total sales, profit and loss
     additional_data = [
